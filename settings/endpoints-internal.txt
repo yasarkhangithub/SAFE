@@ -1,0 +1,2 @@
+http://localhost:8890/sparql
+http://localhost:8891/sparql

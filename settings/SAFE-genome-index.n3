@@ -1,0 +1,25 @@
+@prefix safe: <http://safe.sels.insight.org/schema/>.
+@prefix sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>.
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+
+#---------------------http://localhost:8890/sparql --------------------------------
+<http://safe.sels.insight.org/source1> safe:endpointUrl <http://localhost:8890/sparql>;
+                              safe:cubes safe:CB1;
+							  safe:uniqueProperties <http://sels.insight.org/genomics/schema/histology_subtype>, <http://sels.insight.org/genomics/schema/mut_type>, <http://sels.insight.org/genomics/schema/primary_Site>, <http://sels.insight.org/genomics/schema/primary_histology>, <http://sels.insight.org/genomics/schema/sample_id>, <http://sels.insight.org/genomics/schema/site_subtype>;
+							  safe:uniqueCubes safe:CB1.
+safe:CB1  safe:graph           <http://sels.insight.org/genomics/graph/cosmic/cnv>.
+safe:CB1  safe:uniqueProperty  <http://sels.insight.org/genomics/schema/histology_subtype>, <http://sels.insight.org/genomics/schema/mut_type>, <http://sels.insight.org/genomics/schema/primary_Site>, <http://sels.insight.org/genomics/schema/primary_histology>, <http://sels.insight.org/genomics/schema/sample_id>, <http://sels.insight.org/genomics/schema/site_subtype>. 
+
+#---------------------http://localhost:8891/sparql --------------------------------
+<http://safe.sels.insight.org/source2> safe:endpointUrl <http://localhost:8891/sparql>;
+                              safe:cubes safe:CB2;
+							  safe:uniqueProperties <http://sels.insight.org/genomics/schema/sample>, <http://sels.insight.org/genomics/schema/segment_mean>;
+							  safe:uniqueCubes safe:CB2.
+safe:CB2  safe:graph           <http://sels.insight.org/genomics/graph/tcga/ov/cnv>.
+safe:CB2  safe:uniqueProperty  <http://sels.insight.org/genomics/schema/sample>, <http://sels.insight.org/genomics/schema/segment_mean>. 
+
+#-------------------------common properties--------------------------
+<http://safe.sels.insight.org/sources/common> safe:commonProperties <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, <http://sels.insight.org/genomics/schema/chr>, <http://sels.insight.org/genomics/schema/end>, <http://sels.insight.org/genomics/schema/start>.
+
+#---------End of SAFE index---------

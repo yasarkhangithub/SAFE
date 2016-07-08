@@ -1,0 +1,6 @@
+http://datasrv01.deri.ie:8890/sparql
+http://datasrv01.deri.ie:8891/sparql
+http://datasrv01.deri.ie:8892/sparql
+http://datasrv01.deri.ie:8893/sparql
+http://datasrv01.deri.ie:8894/sparql
+http://datasrv01.deri.ie:8895/sparql

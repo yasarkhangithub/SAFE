@@ -1,0 +1,56 @@
+@prefix safe: <http://safe.sels.insight.org/schema/>.
+@prefix sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>.
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+
+#---------------------http://localhost:3030/dataset1/sparql --------------------------------
+<http://safe.sels.insight.org/source1> safe:endpointUrl <http://localhost:3030/dataset1/sparql>;
+                              safe:cubes safe:CB1, safe:CB2, safe:CB3, safe:CB4, safe:CB5, safe:CB6, safe:CB7;
+							  safe:uniqueProperties <http://www.linked2safety-project.eu/properties/Age_Psych_Interview>, <http://www.linked2safety-project.eu/properties/Seperation_Anxiety_Disorder>, <http://www.linked2safety-project.eu/properties/Type_of_Activity>, <http://www.linked2safety-project.eu/properties/Headaches>, <http://www.linked2safety-project.eu/properties/Drinks_Caffeine_Weekly>, <http://www.linked2safety-project.eu/properties/Cups_Tea_Weekly>, <http://www.linked2safety-project.eu/properties/Alcohol_Abuse>, <http://www.linked2safety-project.eu/properties/Bipolar_Disorder>, <http://www.linked2safety-project.eu/properties/Age_Somatic_Exam>, <http://www.linked2safety-project.eu/properties/Drug_Abuse>, <http://www.linked2safety-project.eu/properties/Sleep_Problems>, <http://www.linked2safety-project.eu/properties/Age_Psych_Interview_Follow>, <http://www.linked2safety-project.eu/properties/Metabolic_Syndrome>, <http://www.linked2safety-project.eu/properties/Stroke>, <http://www.linked2safety-project.eu/properties/Visual_Problem>, <http://www.linked2safety-project.eu/properties/Lung_Diseases>, <http://www.linked2safety-project.eu/properties/Nightmares>;
+							  safe:uniqueCubes safe:CB1, safe:CB2, safe:CB3, safe:CB4, safe:CB5, safe:CB6, safe:CB7.
+safe:CB1  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds1/d1>.
+safe:CB1  safe:uniqueProperty  <http://www.linked2safety-project.eu/properties/Age_Psych_Interview>, <http://www.linked2safety-project.eu/properties/Seperation_Anxiety_Disorder>, <http://www.linked2safety-project.eu/properties/Type_of_Activity>. 
+safe:CB2  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds1/d4>.
+safe:CB2  safe:uniqueProperty  <http://www.linked2safety-project.eu/properties/Age_Somatic_Exam>, <http://www.linked2safety-project.eu/properties/Drug_Abuse>, <http://www.linked2safety-project.eu/properties/Sleep_Problems>. 
+safe:CB3  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds1/d7>.
+safe:CB3  safe:uniqueProperty  <http://www.linked2safety-project.eu/properties/Visual_Problem>, <http://www.linked2safety-project.eu/properties/Lung_Diseases>, <http://www.linked2safety-project.eu/properties/Nightmares>. 
+safe:CB4  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds1/d2>.
+safe:CB4  safe:uniqueProperty  <http://www.linked2safety-project.eu/properties/Headaches>, <http://www.linked2safety-project.eu/properties/Drinks_Caffeine_Weekly>, <http://www.linked2safety-project.eu/properties/Cups_Tea_Weekly>. 
+safe:CB5  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds1/d3>.
+safe:CB5  safe:uniqueProperty  <http://www.linked2safety-project.eu/properties/Alcohol_Abuse>, <http://www.linked2safety-project.eu/properties/Bipolar_Disorder>. 
+safe:CB6  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds1/d5>.
+safe:CB6  safe:uniqueProperty  <http://www.linked2safety-project.eu/properties/Age_Psych_Interview_Follow>. 
+safe:CB7  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds1/d6>.
+safe:CB7  safe:uniqueProperty  <http://www.linked2safety-project.eu/properties/Metabolic_Syndrome>, <http://www.linked2safety-project.eu/properties/Stroke>. 
+
+#---------------------http://localhost:3030/dataset2/sparql --------------------------------
+<http://safe.sels.insight.org/source2> safe:endpointUrl <http://localhost:3030/dataset2/sparql>;
+                              safe:cubes safe:CB8, safe:CB9, safe:CB10, safe:CB11, safe:CB12;
+							  safe:uniqueProperties <http://www.linked2safety-project.eu/properties/Weight>, <http://www.linked2safety-project.eu/properties/Educat>;
+							  safe:uniqueCubes safe:CB11.
+safe:CB8  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds2/d1>.
+safe:CB9  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds2/d2>.
+safe:CB10  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds2/d3>.
+safe:CB11  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds2/d4>.
+safe:CB11  safe:uniqueProperty  <http://www.linked2safety-project.eu/properties/Educat>. 
+safe:CB12  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds2/d5>.
+
+#---------------------http://localhost:3030/dataset3/sparql --------------------------------
+<http://safe.sels.insight.org/source3> safe:endpointUrl <http://localhost:3030/dataset3/sparql>;
+                              safe:cubes safe:CB13, safe:CB14, safe:CB15, safe:CB16, safe:CB17, safe:CB18;
+							  safe:uniqueProperties <http://www.linked2safety-project.eu/properties/BRCA12>, <http://www.linked2safety-project.eu/properties/Mens_RSN>, <http://www.linked2safety-project.eu/properties/Meno_Stat>, <http://www.linked2safety-project.eu/properties/Cancer>;
+							  safe:uniqueCubes safe:CB13, safe:CB14, safe:CB17.
+safe:CB13  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds3/d1>.
+safe:CB13  safe:uniqueProperty  <http://www.linked2safety-project.eu/properties/BRCA12>. 
+safe:CB14  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds3/d2>.
+safe:CB14  safe:uniqueProperty  <http://www.linked2safety-project.eu/properties/Mens_RSN>, <http://www.linked2safety-project.eu/properties/Meno_Stat>. 
+safe:CB15  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds3/d3>.
+safe:CB16  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds3/d4>.
+safe:CB17  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds3/d5>.
+safe:CB17  safe:uniqueProperty  <http://www.linked2safety-project.eu/properties/Cancer>. 
+safe:CB18  safe:graph           <http://www.linked2safety-project.eu/clinical-trials/datacube/ds3/d6>.
+
+#-------------------------common properties--------------------------
+<http://safe.sels.insight.org/sources/common> safe:commonProperties <http://purl.org/dc/terms/date>, <http://purl.org/dc/terms/publisher>, <http://www.w3.org/2000/01/rdf-schema#label>, <http://purl.org/linked-data/cube#structure>, <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, <http://purl.org/linked-data/cube#component>, <http://purl.org/linked-data/cube#dimension>, <http://purl.org/linked-data/cube#measure>, <http://www.linked2safety-project.eu/properties/Gender>, <http://www.linked2safety-project.eu/properties/Nationality>, <http://www.linked2safety-project.eu/measure/Cases>, <http://purl.org/linked-data/cube#dataSet>, <http://www.linked2safety-project.eu/properties/Age>, <http://www.linked2safety-project.eu/properties/Ethnicity>, <http://www.linked2safety-project.eu/properties/Smoking_Ever>, <http://www.linked2safety-project.eu/properties/BMI>, <http://www.linked2safety-project.eu/properties/Diabetes>, <http://www.linked2safety-project.eu/properties/Dyslipidemia>, <http://www.linked2safety-project.eu/properties/Hypertension>, <http://purl.org/linked-data/sdmx/2009/measure#Cases>.
+
+#---------End of SAFE index---------

@@ -1,0 +1,601 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet_fedx.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Copyright (C) 2008-2013, fluid Operations AG<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * FedX is free software: you can redistribute it and/or modify<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * it under the terms of the GNU Affero General Public License as<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * published by the Free Software Foundation, either version 3 of the<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * License, or (at your option) any later version.<a name="line.7"></a>
+<span class="sourceLineNo">008</span> * <a name="line.8"></a>
+<span class="sourceLineNo">009</span> * This program is distributed in the hope that it will be useful,<a name="line.9"></a>
+<span class="sourceLineNo">010</span> * but WITHOUT ANY WARRANTY; without even the implied warranty of<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * GNU Affero General Public License for more details.<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * <a name="line.13"></a>
+<span class="sourceLineNo">014</span> * You should have received a copy of the GNU Affero General Public License<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package com.fluidops.fedx.util;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.HashSet;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.List;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.Set;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.log4j.Logger;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.openrdf.model.Resource;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.openrdf.model.Statement;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.openrdf.model.URI;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.openrdf.model.Value;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.openrdf.model.impl.StatementImpl;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.openrdf.query.BindingSet;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.openrdf.query.algebra.Compare;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.openrdf.query.algebra.Filter;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.openrdf.query.algebra.Join;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.openrdf.query.algebra.Projection;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.openrdf.query.algebra.ProjectionElem;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.openrdf.query.algebra.ProjectionElemList;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.openrdf.query.algebra.StatementPattern;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.openrdf.query.algebra.TupleExpr;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.openrdf.query.algebra.Union;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.openrdf.query.algebra.ValueConstant;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import org.openrdf.query.algebra.Var;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import org.openrdf.query.algebra.Compare.CompareOp;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import org.openrdf.query.impl.EmptyBindingSet;<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>import com.fluidops.fedx.algebra.FilterValueExpr;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>import com.fluidops.fedx.algebra.IndependentJoinGroup;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>import com.fluidops.fedx.algebra.ExclusiveStatement;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>import com.fluidops.fedx.algebra.ExclusiveGroup;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>import com.fluidops.fedx.exception.FilterConversionException;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>import com.fluidops.fedx.exception.IllegalQueryException;<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>/**<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * Various static functions for query handling and parsing (alegbra expression).<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * <a name="line.54"></a>
+<span class="sourceLineNo">055</span> * @author Andreas Schwarte<a name="line.55"></a>
+<span class="sourceLineNo">056</span> */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>public class QueryAlgebraUtil {<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>        public static Logger log = Logger.getLogger(QueryAlgebraUtil.class);<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        <a name="line.60"></a>
+<span class="sourceLineNo">061</span>        /**<a name="line.61"></a>
+<span class="sourceLineNo">062</span>         * returns true iff there is at least one free variable, i.e. there is no binding<a name="line.62"></a>
+<span class="sourceLineNo">063</span>         * for any variable<a name="line.63"></a>
+<span class="sourceLineNo">064</span>         * <a name="line.64"></a>
+<span class="sourceLineNo">065</span>         * @param stmt<a name="line.65"></a>
+<span class="sourceLineNo">066</span>         * @param bindings<a name="line.66"></a>
+<span class="sourceLineNo">067</span>         * @return<a name="line.67"></a>
+<span class="sourceLineNo">068</span>         */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        public static boolean hasFreeVars(StatementPattern stmt, BindingSet bindings) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>                for (Var var : stmt.getVarList()) {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                        if(!var.hasValue() &amp;&amp; !bindings.hasBinding(var.getName()))<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                                return true;    // there is at least one free var                               <a name="line.72"></a>
+<span class="sourceLineNo">073</span>                }<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                return false;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        }<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        <a name="line.76"></a>
+<span class="sourceLineNo">077</span>        /**<a name="line.77"></a>
+<span class="sourceLineNo">078</span>         * Return the {@link Value} of the variable which is either taken from<a name="line.78"></a>
+<span class="sourceLineNo">079</span>         * the variable itself (bound) or from the bindingsset (unbound).<a name="line.79"></a>
+<span class="sourceLineNo">080</span>         * <a name="line.80"></a>
+<span class="sourceLineNo">081</span>         * @param var<a name="line.81"></a>
+<span class="sourceLineNo">082</span>         * @param bindings<a name="line.82"></a>
+<span class="sourceLineNo">083</span>         *                      the bindings, must not be null, use {@link EmptyBindingSet} instead<a name="line.83"></a>
+<span class="sourceLineNo">084</span>         * <a name="line.84"></a>
+<span class="sourceLineNo">085</span>         * @return<a name="line.85"></a>
+<span class="sourceLineNo">086</span>         *              the value or null<a name="line.86"></a>
+<span class="sourceLineNo">087</span>         */<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        public static Value getVarValue(Var var, BindingSet bindings) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                if (var == null) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                        return null;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>                } else if (var.hasValue()) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                        return var.getValue();<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                } else {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                        return bindings.getValue(var.getName());<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                }<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        }<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                <a name="line.97"></a>
+<span class="sourceLineNo">098</span>        <a name="line.98"></a>
+<span class="sourceLineNo">099</span>        public static StatementPattern toStatementPattern(Statement stmt) {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                return toStatementPattern(stmt.getSubject(), stmt.getPredicate(), stmt.getObject());<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        }<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        <a name="line.102"></a>
+<span class="sourceLineNo">103</span>        public static StatementPattern toStatementPattern(Resource subj, URI pred, Value obj) {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                Var s = subj==null ? new Var("s") : new Var("const_s", subj);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>                Var p = pred==null ? new Var("p") : new Var("const_p", pred);<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                Var o = obj==null ? new Var("o") : new Var("const_o", obj);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                // TODO context<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                <a name="line.108"></a>
+<span class="sourceLineNo">109</span>                return new StatementPattern(s, p, o);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        }<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        <a name="line.111"></a>
+<span class="sourceLineNo">112</span>        public static Statement toStatement(StatementPattern stmt) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                return toStatement(stmt, EmptyBindingSet.getInstance());<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        }<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        <a name="line.115"></a>
+<span class="sourceLineNo">116</span>        public static Statement toStatement(StatementPattern stmt, BindingSet bindings) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                <a name="line.117"></a>
+<span class="sourceLineNo">118</span>                Value subj = getVarValue(stmt.getSubjectVar(), bindings);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                Value pred = getVarValue(stmt.getPredicateVar(), bindings);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>                Value obj = getVarValue(stmt.getObjectVar(), bindings);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                // TODO context<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                <a name="line.122"></a>
+<span class="sourceLineNo">123</span>                return new StatementImpl((Resource)subj, (URI)pred, obj);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        }<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        <a name="line.125"></a>
+<span class="sourceLineNo">126</span>        <a name="line.126"></a>
+<span class="sourceLineNo">127</span>        /**<a name="line.127"></a>
+<span class="sourceLineNo">128</span>         * Construct a SELECT query for the provided statement. <a name="line.128"></a>
+<span class="sourceLineNo">129</span>         * <a name="line.129"></a>
+<span class="sourceLineNo">130</span>         * @param stmt<a name="line.130"></a>
+<span class="sourceLineNo">131</span>         * @param bindings<a name="line.131"></a>
+<span class="sourceLineNo">132</span>         * @param filterExpr<a name="line.132"></a>
+<span class="sourceLineNo">133</span>         * @param evaluated<a name="line.133"></a>
+<span class="sourceLineNo">134</span>         *                      parameter can be used outside this method to check whether FILTER has been evaluated, false in beginning<a name="line.134"></a>
+<span class="sourceLineNo">135</span>         * <a name="line.135"></a>
+<span class="sourceLineNo">136</span>         * @return<a name="line.136"></a>
+<span class="sourceLineNo">137</span>         * @throws IllegalQueryException<a name="line.137"></a>
+<span class="sourceLineNo">138</span>         */<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        public static TupleExpr selectQuery( StatementPattern stmt, BindingSet bindings, FilterValueExpr filterExpr, Boolean evaluated) throws IllegalQueryException {<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                <a name="line.140"></a>
+<span class="sourceLineNo">141</span>                Set&lt;String&gt; varNames = new HashSet&lt;String&gt;();<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                TupleExpr expr = constructStatement(stmt, varNames, bindings);<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                                <a name="line.143"></a>
+<span class="sourceLineNo">144</span>                if (varNames.size()==0)<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                        throw new IllegalQueryException("SELECT query needs at least one projection!");<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                                <a name="line.146"></a>
+<span class="sourceLineNo">147</span>                if (filterExpr!=null) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                        try {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                                expr = new Filter(expr, FilterUtils.toFilter(filterExpr));<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                                evaluated = true;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                        } catch (FilterConversionException e) {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                                log.warn("Filter could not be evaluated remotely. " + e.getMessage());<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                        }<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                }<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        <a name="line.155"></a>
+<span class="sourceLineNo">156</span>                ProjectionElemList projList = new ProjectionElemList();<a name="line.156"></a>
+<span class="sourceLineNo">157</span>                for (String var : varNames)<a name="line.157"></a>
+<span class="sourceLineNo">158</span>                        projList.addElement( new ProjectionElem(var));<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                <a name="line.159"></a>
+<span class="sourceLineNo">160</span>                Projection proj = new Projection(expr, projList);<a name="line.160"></a>
+<span class="sourceLineNo">161</span>                <a name="line.161"></a>
+<span class="sourceLineNo">162</span>                return proj;    <a name="line.162"></a>
+<span class="sourceLineNo">163</span>        }<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        <a name="line.164"></a>
+<span class="sourceLineNo">165</span>        /**<a name="line.165"></a>
+<span class="sourceLineNo">166</span>         * Construct a SELECT query for the provided {@link ExclusiveGroup}. Note that bindings<a name="line.166"></a>
+<span class="sourceLineNo">167</span>         * and filterExpr are applied whenever possible.<a name="line.167"></a>
+<span class="sourceLineNo">168</span>         *  <a name="line.168"></a>
+<span class="sourceLineNo">169</span>         * @param group<a name="line.169"></a>
+<span class="sourceLineNo">170</span>         *                              the expression for the query<a name="line.170"></a>
+<span class="sourceLineNo">171</span>         * @param bindings<a name="line.171"></a>
+<span class="sourceLineNo">172</span>         *                              the bindings to be applied<a name="line.172"></a>
+<span class="sourceLineNo">173</span>         * @param filterExpr<a name="line.173"></a>
+<span class="sourceLineNo">174</span>         *                              a filter expression or null<a name="line.174"></a>
+<span class="sourceLineNo">175</span>         * @param evaluated<a name="line.175"></a>
+<span class="sourceLineNo">176</span>         *                              parameter can be used outside this method to check whether FILTER has been evaluated, false in beginning<a name="line.176"></a>
+<span class="sourceLineNo">177</span>         * <a name="line.177"></a>
+<span class="sourceLineNo">178</span>         * @return<a name="line.178"></a>
+<span class="sourceLineNo">179</span>         */<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        public static TupleExpr selectQuery( ExclusiveGroup group, BindingSet bindings, FilterValueExpr filterExpr, Boolean evaluated) {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>                <a name="line.181"></a>
+<span class="sourceLineNo">182</span>                <a name="line.182"></a>
+<span class="sourceLineNo">183</span>                Set&lt;String&gt; varNames = new HashSet&lt;String&gt;();<a name="line.183"></a>
+<span class="sourceLineNo">184</span>                List&lt;ExclusiveStatement&gt; stmts = group.getStatements();<a name="line.184"></a>
+<span class="sourceLineNo">185</span>                <a name="line.185"></a>
+<span class="sourceLineNo">186</span>                Join join = null;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>                <a name="line.187"></a>
+<span class="sourceLineNo">188</span>                if (stmts.size()==2) {<a name="line.188"></a>
+<span class="sourceLineNo">189</span>                        join = new Join(constructStatement(stmts.get(0), varNames, bindings), constructStatement(stmts.get(1), varNames, bindings));<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                } else {<a name="line.190"></a>
+<span class="sourceLineNo">191</span>                        join = new Join();<a name="line.191"></a>
+<span class="sourceLineNo">192</span>                        join.setLeftArg(constructStatement(stmts.get(0), varNames, bindings) );<a name="line.192"></a>
+<span class="sourceLineNo">193</span>                        Join tmp = join;<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                        int idx;<a name="line.194"></a>
+<span class="sourceLineNo">195</span>                        for (idx=1; idx&lt;stmts.size()-1; idx++) {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>                                Join _u = new Join();<a name="line.196"></a>
+<span class="sourceLineNo">197</span>                                _u.setLeftArg( constructStatement(stmts.get(idx), varNames, bindings) );<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                                tmp.setRightArg(_u);<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                                tmp = _u;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>                        }<a name="line.200"></a>
+<span class="sourceLineNo">201</span>                        tmp.setRightArg( constructStatement(stmts.get(idx), varNames, bindings) );<a name="line.201"></a>
+<span class="sourceLineNo">202</span>                }       <a name="line.202"></a>
+<span class="sourceLineNo">203</span>                <a name="line.203"></a>
+<span class="sourceLineNo">204</span>                TupleExpr expr = join;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>                                <a name="line.205"></a>
+<span class="sourceLineNo">206</span>                if (filterExpr!=null) {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>                        try {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                                expr = new Filter(expr, FilterUtils.toFilter(filterExpr));<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                                evaluated = true;<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                        } catch (FilterConversionException e) {<a name="line.210"></a>
+<span class="sourceLineNo">211</span>                                log.warn("Filter could not be evaluated remotely. " + e.getMessage());<a name="line.211"></a>
+<span class="sourceLineNo">212</span>                        }<a name="line.212"></a>
+<span class="sourceLineNo">213</span>                }<a name="line.213"></a>
+<span class="sourceLineNo">214</span>                <a name="line.214"></a>
+<span class="sourceLineNo">215</span>                ProjectionElemList projList = new ProjectionElemList();<a name="line.215"></a>
+<span class="sourceLineNo">216</span>                for (String var : varNames)<a name="line.216"></a>
+<span class="sourceLineNo">217</span>                        projList.addElement( new ProjectionElem(var));<a name="line.217"></a>
+<span class="sourceLineNo">218</span>                <a name="line.218"></a>
+<span class="sourceLineNo">219</span>                Projection proj = new Projection(expr, projList);<a name="line.219"></a>
+<span class="sourceLineNo">220</span>                <a name="line.220"></a>
+<span class="sourceLineNo">221</span>                return proj;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        }<a name="line.222"></a>
+<span class="sourceLineNo">223</span><a name="line.223"></a>
+<span class="sourceLineNo">224</span>        /**<a name="line.224"></a>
+<span class="sourceLineNo">225</span>         * Construct a SELECT query expression for a bound union.<a name="line.225"></a>
+<span class="sourceLineNo">226</span>         * <a name="line.226"></a>
+<span class="sourceLineNo">227</span>         * Pattern:<a name="line.227"></a>
+<span class="sourceLineNo">228</span>         * <a name="line.228"></a>
+<span class="sourceLineNo">229</span>         * SELECT ?v_1 ?v_2 ?v_N WHERE { { ?v_1 p o } UNION { ?v_2 p o } UNION ... } <a name="line.229"></a>
+<span class="sourceLineNo">230</span>         * <a name="line.230"></a>
+<span class="sourceLineNo">231</span>         * Note that the filterExpr is not evaluated at the moment.<a name="line.231"></a>
+<span class="sourceLineNo">232</span>         * <a name="line.232"></a>
+<span class="sourceLineNo">233</span>         * @param stmt<a name="line.233"></a>
+<span class="sourceLineNo">234</span>         * @param unionBindings<a name="line.234"></a>
+<span class="sourceLineNo">235</span>         * @param filterExpr<a name="line.235"></a>
+<span class="sourceLineNo">236</span>         * @param evaluated<a name="line.236"></a>
+<span class="sourceLineNo">237</span>         *                      parameter can be used outside this method to check whether FILTER has been evaluated, false in beginning<a name="line.237"></a>
+<span class="sourceLineNo">238</span>         * <a name="line.238"></a>
+<span class="sourceLineNo">239</span>         * @return<a name="line.239"></a>
+<span class="sourceLineNo">240</span>         */<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        public static TupleExpr selectQueryBoundUnion( StatementPattern stmt, List&lt;BindingSet&gt; unionBindings, FilterValueExpr filterExpr, Boolean evaluated) {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>                <a name="line.242"></a>
+<span class="sourceLineNo">243</span>                // TODO add FILTER expressions<a name="line.243"></a>
+<span class="sourceLineNo">244</span>                <a name="line.244"></a>
+<span class="sourceLineNo">245</span>                Set&lt;String&gt; varNames = new HashSet&lt;String&gt;();<a name="line.245"></a>
+<span class="sourceLineNo">246</span>                <a name="line.246"></a>
+<span class="sourceLineNo">247</span>                Union union = new Union();<a name="line.247"></a>
+<span class="sourceLineNo">248</span>                union.setLeftArg(constructStatementId(stmt, Integer.toString(0), varNames, unionBindings.get(0)) );<a name="line.248"></a>
+<span class="sourceLineNo">249</span>                Union tmp = union;<a name="line.249"></a>
+<span class="sourceLineNo">250</span>                int idx;<a name="line.250"></a>
+<span class="sourceLineNo">251</span>                for (idx=1; idx&lt;unionBindings.size()-1; idx++) {<a name="line.251"></a>
+<span class="sourceLineNo">252</span>                        Union _u = new Union();<a name="line.252"></a>
+<span class="sourceLineNo">253</span>                        _u.setLeftArg( constructStatementId(stmt, Integer.toString(idx), varNames, unionBindings.get(idx)) );<a name="line.253"></a>
+<span class="sourceLineNo">254</span>                        tmp.setRightArg(_u);<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                        tmp = _u;<a name="line.255"></a>
+<span class="sourceLineNo">256</span>                }<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                tmp.setRightArg( constructStatementId(stmt, Integer.toString(idx), varNames, unionBindings.get(idx) ));<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                                <a name="line.258"></a>
+<span class="sourceLineNo">259</span>                ProjectionElemList projList = new ProjectionElemList();<a name="line.259"></a>
+<span class="sourceLineNo">260</span>                for (String var : varNames)<a name="line.260"></a>
+<span class="sourceLineNo">261</span>                        projList.addElement( new ProjectionElem(var));<a name="line.261"></a>
+<span class="sourceLineNo">262</span>                <a name="line.262"></a>
+<span class="sourceLineNo">263</span>                Projection proj = new Projection(union, projList);<a name="line.263"></a>
+<span class="sourceLineNo">264</span><a name="line.264"></a>
+<span class="sourceLineNo">265</span>                return proj;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        }       <a name="line.266"></a>
+<span class="sourceLineNo">267</span>                <a name="line.267"></a>
+<span class="sourceLineNo">268</span>        <a name="line.268"></a>
+<span class="sourceLineNo">269</span>        /**<a name="line.269"></a>
+<span class="sourceLineNo">270</span>         * Construct a SELECT query for a grouped bound check.<a name="line.270"></a>
+<span class="sourceLineNo">271</span>         * <a name="line.271"></a>
+<span class="sourceLineNo">272</span>         * Pattern:<a name="line.272"></a>
+<span class="sourceLineNo">273</span>         * <a name="line.273"></a>
+<span class="sourceLineNo">274</span>         * SELECT DISTINCT ?o_1 .. ?o_N WHERE { { s1 p1 ?o_1 FILTER ?o_1=o1 } UNION ... UNION { sN pN ?o_N FILTER ?o_N=oN }}<a name="line.274"></a>
+<span class="sourceLineNo">275</span>         * <a name="line.275"></a>
+<span class="sourceLineNo">276</span>         * @param stmt<a name="line.276"></a>
+<span class="sourceLineNo">277</span>         * @param unionBindings<a name="line.277"></a>
+<span class="sourceLineNo">278</span>         * @return<a name="line.278"></a>
+<span class="sourceLineNo">279</span>         */<a name="line.279"></a>
+<span class="sourceLineNo">280</span>        public static TupleExpr selectQueryStringBoundCheck(StatementPattern stmt, List&lt;BindingSet&gt; unionBindings) {<a name="line.280"></a>
+<span class="sourceLineNo">281</span>                <a name="line.281"></a>
+<span class="sourceLineNo">282</span>                Set&lt;String&gt; varNames = new HashSet&lt;String&gt;();<a name="line.282"></a>
+<span class="sourceLineNo">283</span>                <a name="line.283"></a>
+<span class="sourceLineNo">284</span>                Union union = new Union();<a name="line.284"></a>
+<span class="sourceLineNo">285</span>                union.setLeftArg(constructStatementCheckId(stmt, 0, varNames, unionBindings.get(0)) );<a name="line.285"></a>
+<span class="sourceLineNo">286</span>                Union tmp = union;<a name="line.286"></a>
+<span class="sourceLineNo">287</span>                int idx;<a name="line.287"></a>
+<span class="sourceLineNo">288</span>                for (idx=1; idx&lt;unionBindings.size()-1; idx++) {<a name="line.288"></a>
+<span class="sourceLineNo">289</span>                        Union _u = new Union();<a name="line.289"></a>
+<span class="sourceLineNo">290</span>                        _u.setLeftArg( constructStatementCheckId(stmt, idx, varNames, unionBindings.get(idx)) );<a name="line.290"></a>
+<span class="sourceLineNo">291</span>                        tmp.setRightArg(_u);<a name="line.291"></a>
+<span class="sourceLineNo">292</span>                        tmp = _u;<a name="line.292"></a>
+<span class="sourceLineNo">293</span>                }<a name="line.293"></a>
+<span class="sourceLineNo">294</span>                tmp.setRightArg( constructStatementCheckId(stmt, idx, varNames, unionBindings.get(idx) ));<a name="line.294"></a>
+<span class="sourceLineNo">295</span>                <a name="line.295"></a>
+<span class="sourceLineNo">296</span>                ProjectionElemList projList = new ProjectionElemList();<a name="line.296"></a>
+<span class="sourceLineNo">297</span>                for (String var : varNames)<a name="line.297"></a>
+<span class="sourceLineNo">298</span>                        projList.addElement( new ProjectionElem(var));<a name="line.298"></a>
+<span class="sourceLineNo">299</span>                <a name="line.299"></a>
+<span class="sourceLineNo">300</span>                Projection proj = new Projection(union, projList);<a name="line.300"></a>
+<span class="sourceLineNo">301</span><a name="line.301"></a>
+<span class="sourceLineNo">302</span>                return proj;<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        }       <a name="line.303"></a>
+<span class="sourceLineNo">304</span>        <a name="line.304"></a>
+<span class="sourceLineNo">305</span>        <a name="line.305"></a>
+<span class="sourceLineNo">306</span>        public static TupleExpr selectQueryIndependentJoinGroup(IndependentJoinGroup joinGroup, BindingSet bindings) {<a name="line.306"></a>
+<span class="sourceLineNo">307</span>                <a name="line.307"></a>
+<span class="sourceLineNo">308</span>                Set&lt;String&gt; varNames = new HashSet&lt;String&gt;();<a name="line.308"></a>
+<span class="sourceLineNo">309</span>                <a name="line.309"></a>
+<span class="sourceLineNo">310</span>                <a name="line.310"></a>
+<span class="sourceLineNo">311</span>                Union union = null;<a name="line.311"></a>
+<span class="sourceLineNo">312</span>                <a name="line.312"></a>
+<span class="sourceLineNo">313</span>                if (joinGroup.getMemberCount()==2) {<a name="line.313"></a>
+<span class="sourceLineNo">314</span>                        union = new Union();<a name="line.314"></a>
+<span class="sourceLineNo">315</span>                        union.setLeftArg(constructStatementId((StatementPattern)joinGroup.getMembers().get(0), Integer.toString(0), varNames, bindings));<a name="line.315"></a>
+<span class="sourceLineNo">316</span>                        union.setRightArg(constructStatementId((StatementPattern)joinGroup.getMembers().get(1), Integer.toString(1), varNames, bindings));<a name="line.316"></a>
+<span class="sourceLineNo">317</span>                } else {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>                        union = new Union();<a name="line.318"></a>
+<span class="sourceLineNo">319</span>                        union.setLeftArg(constructStatementId((StatementPattern)joinGroup.getMembers().get(0), Integer.toString(0), varNames, bindings) );<a name="line.319"></a>
+<span class="sourceLineNo">320</span>                        Union tmp = union;<a name="line.320"></a>
+<span class="sourceLineNo">321</span>                        int idx;<a name="line.321"></a>
+<span class="sourceLineNo">322</span>                        for (idx=1; idx&lt;joinGroup.getMemberCount()-1; idx++) {<a name="line.322"></a>
+<span class="sourceLineNo">323</span>                                Union _u = new Union();<a name="line.323"></a>
+<span class="sourceLineNo">324</span>                                _u.setLeftArg( constructStatementId((StatementPattern)joinGroup.getMembers().get(idx), Integer.toString(idx), varNames, bindings) );<a name="line.324"></a>
+<span class="sourceLineNo">325</span>                                tmp.setRightArg(_u);<a name="line.325"></a>
+<span class="sourceLineNo">326</span>                                tmp = _u;<a name="line.326"></a>
+<span class="sourceLineNo">327</span>                        }<a name="line.327"></a>
+<span class="sourceLineNo">328</span>                        tmp.setRightArg( constructStatementId((StatementPattern)joinGroup.getMembers().get(idx), Integer.toString(idx), varNames, bindings));<a name="line.328"></a>
+<span class="sourceLineNo">329</span>                }               <a name="line.329"></a>
+<span class="sourceLineNo">330</span>                <a name="line.330"></a>
+<span class="sourceLineNo">331</span>                ProjectionElemList projList = new ProjectionElemList();<a name="line.331"></a>
+<span class="sourceLineNo">332</span>                for (String var : varNames)<a name="line.332"></a>
+<span class="sourceLineNo">333</span>                        projList.addElement( new ProjectionElem(var));<a name="line.333"></a>
+<span class="sourceLineNo">334</span>                <a name="line.334"></a>
+<span class="sourceLineNo">335</span>                Projection proj = new Projection(union, projList);<a name="line.335"></a>
+<span class="sourceLineNo">336</span><a name="line.336"></a>
+<span class="sourceLineNo">337</span>                return proj;<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        }<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        <a name="line.339"></a>
+<span class="sourceLineNo">340</span>        <a name="line.340"></a>
+<span class="sourceLineNo">341</span>        /**<a name="line.341"></a>
+<span class="sourceLineNo">342</span>         * Construct a select query representing a bound independent join group.<a name="line.342"></a>
+<span class="sourceLineNo">343</span>         * <a name="line.343"></a>
+<span class="sourceLineNo">344</span>         * ?v_%stmt%#%bindingId$<a name="line.344"></a>
+<span class="sourceLineNo">345</span>         * <a name="line.345"></a>
+<span class="sourceLineNo">346</span>         * SELECT ?v_0_0 ?v_0_1 ?v_1_0 ... <a name="line.346"></a>
+<span class="sourceLineNo">347</span>         *      WHERE { <a name="line.347"></a>
+<span class="sourceLineNo">348</span>         *              { ?v_0#0 p o UNION ?v_0_1 p o UNION ... } <a name="line.348"></a>
+<span class="sourceLineNo">349</span>         *              UNION <a name="line.349"></a>
+<span class="sourceLineNo">350</span>         *              { ?v_1_0 p o UNION ?v_1_1 p o UNION ... } <a name="line.350"></a>
+<span class="sourceLineNo">351</span>         *      UNION<a name="line.351"></a>
+<span class="sourceLineNo">352</span>         *      ...<a name="line.352"></a>
+<span class="sourceLineNo">353</span>         *  }<a name="line.353"></a>
+<span class="sourceLineNo">354</span>         * @param joinGroup<a name="line.354"></a>
+<span class="sourceLineNo">355</span>         * @param bindings<a name="line.355"></a>
+<span class="sourceLineNo">356</span>         * @return<a name="line.356"></a>
+<span class="sourceLineNo">357</span>         */<a name="line.357"></a>
+<span class="sourceLineNo">358</span>        public static TupleExpr selectQueryIndependentJoinGroup(IndependentJoinGroup joinGroup, List&lt;BindingSet&gt; bindings) {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>                <a name="line.359"></a>
+<span class="sourceLineNo">360</span>                Set&lt;String&gt; varNames = new HashSet&lt;String&gt;();<a name="line.360"></a>
+<span class="sourceLineNo">361</span>                <a name="line.361"></a>
+<span class="sourceLineNo">362</span>                <a name="line.362"></a>
+<span class="sourceLineNo">363</span>                Union outer = null;<a name="line.363"></a>
+<span class="sourceLineNo">364</span>                <a name="line.364"></a>
+<span class="sourceLineNo">365</span>                if (joinGroup.getMemberCount()==2) {<a name="line.365"></a>
+<span class="sourceLineNo">366</span>                        outer = new Union();<a name="line.366"></a>
+<span class="sourceLineNo">367</span>                        outer.setLeftArg(constructInnerUnion((StatementPattern)joinGroup.getMembers().get(0), 0, varNames, bindings));<a name="line.367"></a>
+<span class="sourceLineNo">368</span>                        outer.setRightArg(constructInnerUnion((StatementPattern)joinGroup.getMembers().get(1), 1, varNames, bindings));<a name="line.368"></a>
+<span class="sourceLineNo">369</span>                } else {                        <a name="line.369"></a>
+<span class="sourceLineNo">370</span>                        throw new RuntimeException("TODOO");<a name="line.370"></a>
+<span class="sourceLineNo">371</span>                }               <a name="line.371"></a>
+<span class="sourceLineNo">372</span>                <a name="line.372"></a>
+<span class="sourceLineNo">373</span>                ProjectionElemList projList = new ProjectionElemList();<a name="line.373"></a>
+<span class="sourceLineNo">374</span>                for (String var : varNames)<a name="line.374"></a>
+<span class="sourceLineNo">375</span>                        projList.addElement( new ProjectionElem(var));<a name="line.375"></a>
+<span class="sourceLineNo">376</span>                <a name="line.376"></a>
+<span class="sourceLineNo">377</span>                Projection proj = new Projection(outer, projList);<a name="line.377"></a>
+<span class="sourceLineNo">378</span><a name="line.378"></a>
+<span class="sourceLineNo">379</span>                return proj;<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        }<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        <a name="line.381"></a>
+<span class="sourceLineNo">382</span>        <a name="line.382"></a>
+<span class="sourceLineNo">383</span>        protected static Union constructInnerUnion(StatementPattern stmt, int outerID, Set&lt;String&gt; varNames, List&lt;BindingSet&gt; bindings) {<a name="line.383"></a>
+<span class="sourceLineNo">384</span>                <a name="line.384"></a>
+<span class="sourceLineNo">385</span>                Union union = new Union();<a name="line.385"></a>
+<span class="sourceLineNo">386</span>                union.setLeftArg(constructStatementId(stmt, outerID + "_0", varNames, bindings.get(0)) );<a name="line.386"></a>
+<span class="sourceLineNo">387</span>                Union tmp = union;<a name="line.387"></a>
+<span class="sourceLineNo">388</span>                int idx;<a name="line.388"></a>
+<span class="sourceLineNo">389</span>                for (idx=1; idx&lt;bindings.size()-1; idx++) {<a name="line.389"></a>
+<span class="sourceLineNo">390</span>                        Union _u = new Union();<a name="line.390"></a>
+<span class="sourceLineNo">391</span>                        _u.setLeftArg( constructStatementId(stmt, outerID + "_" + idx, varNames, bindings.get(idx)) );<a name="line.391"></a>
+<span class="sourceLineNo">392</span>                        tmp.setRightArg(_u);<a name="line.392"></a>
+<span class="sourceLineNo">393</span>                        tmp = _u;<a name="line.393"></a>
+<span class="sourceLineNo">394</span>                }<a name="line.394"></a>
+<span class="sourceLineNo">395</span>                tmp.setRightArg( constructStatementId(stmt, outerID + "_" + idx, varNames, bindings.get(idx)));<a name="line.395"></a>
+<span class="sourceLineNo">396</span>                <a name="line.396"></a>
+<span class="sourceLineNo">397</span>                return union;<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        }<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        <a name="line.399"></a>
+<span class="sourceLineNo">400</span><a name="line.400"></a>
+<span class="sourceLineNo">401</span>        /**<a name="line.401"></a>
+<span class="sourceLineNo">402</span>         * Construct the statement string, i.e. "s p o . " with bindings inserted wherever possible. Note that<a name="line.402"></a>
+<span class="sourceLineNo">403</span>         * the free variables are added to the varNames set for further evaluation.<a name="line.403"></a>
+<span class="sourceLineNo">404</span>         * <a name="line.404"></a>
+<span class="sourceLineNo">405</span>         * @param stmt<a name="line.405"></a>
+<span class="sourceLineNo">406</span>         * @param varNames<a name="line.406"></a>
+<span class="sourceLineNo">407</span>         * @param bindings<a name="line.407"></a>
+<span class="sourceLineNo">408</span>         * <a name="line.408"></a>
+<span class="sourceLineNo">409</span>         * @return<a name="line.409"></a>
+<span class="sourceLineNo">410</span>         */<a name="line.410"></a>
+<span class="sourceLineNo">411</span>        protected static StatementPattern constructStatement(StatementPattern stmt, Set&lt;String&gt; varNames, BindingSet bindings) {<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                <a name="line.412"></a>
+<span class="sourceLineNo">413</span>                Var subj = appendVar(stmt.getSubjectVar(), varNames, bindings);<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                Var pred =  appendVar(stmt.getPredicateVar(), varNames, bindings);<a name="line.414"></a>
+<span class="sourceLineNo">415</span>                Var obj = appendVar(stmt.getObjectVar(), varNames, bindings);<a name="line.415"></a>
+<span class="sourceLineNo">416</span>                <a name="line.416"></a>
+<span class="sourceLineNo">417</span>                return new StatementPattern(subj, pred, obj);<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        }<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        <a name="line.419"></a>
+<span class="sourceLineNo">420</span>        /**<a name="line.420"></a>
+<span class="sourceLineNo">421</span>         * Construct the statement string, i.e. "s p o . " with bindings inserted wherever possible. Variables<a name="line.421"></a>
+<span class="sourceLineNo">422</span>         * are renamed to "var_"+varId to identify query results in bound queries. Note that<a name="line.422"></a>
+<span class="sourceLineNo">423</span>         * the free variables are also added to the varNames set for further evaluation.<a name="line.423"></a>
+<span class="sourceLineNo">424</span>         * <a name="line.424"></a>
+<span class="sourceLineNo">425</span>         * @param stmt<a name="line.425"></a>
+<span class="sourceLineNo">426</span>         * @param varNames<a name="line.426"></a>
+<span class="sourceLineNo">427</span>         * @param bindings<a name="line.427"></a>
+<span class="sourceLineNo">428</span>         * <a name="line.428"></a>
+<span class="sourceLineNo">429</span>         * @return<a name="line.429"></a>
+<span class="sourceLineNo">430</span>         */<a name="line.430"></a>
+<span class="sourceLineNo">431</span>        protected static StatementPattern constructStatementId(StatementPattern stmt, String varID, Set&lt;String&gt; varNames, BindingSet bindings) {<a name="line.431"></a>
+<span class="sourceLineNo">432</span>                <a name="line.432"></a>
+<span class="sourceLineNo">433</span>                <a name="line.433"></a>
+<span class="sourceLineNo">434</span>                Var subj = appendVarId(stmt.getSubjectVar(), varID, varNames, bindings);<a name="line.434"></a>
+<span class="sourceLineNo">435</span>                Var pred =  appendVarId(stmt.getPredicateVar(), varID, varNames, bindings);<a name="line.435"></a>
+<span class="sourceLineNo">436</span>                Var obj = appendVarId(stmt.getObjectVar(), varID, varNames, bindings);<a name="line.436"></a>
+<span class="sourceLineNo">437</span>                <a name="line.437"></a>
+<span class="sourceLineNo">438</span>                return new StatementPattern(subj, pred, obj);<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        }<a name="line.439"></a>
+<span class="sourceLineNo">440</span>        <a name="line.440"></a>
+<span class="sourceLineNo">441</span>        /**<a name="line.441"></a>
+<span class="sourceLineNo">442</span>         * Construct the statement string, i.e. "s p ?o_varID FILTER ?o_N=o ". This kind of statement<a name="line.442"></a>
+<span class="sourceLineNo">443</span>         * pattern is necessary to later on identify available results.<a name="line.443"></a>
+<span class="sourceLineNo">444</span>         * <a name="line.444"></a>
+<span class="sourceLineNo">445</span>         * @param stmt<a name="line.445"></a>
+<span class="sourceLineNo">446</span>         * @param varID<a name="line.446"></a>
+<span class="sourceLineNo">447</span>         * @param varNames<a name="line.447"></a>
+<span class="sourceLineNo">448</span>         * @param bindings<a name="line.448"></a>
+<span class="sourceLineNo">449</span>         * @return<a name="line.449"></a>
+<span class="sourceLineNo">450</span>         */<a name="line.450"></a>
+<span class="sourceLineNo">451</span>        protected static TupleExpr constructStatementCheckId(StatementPattern stmt, int varID, Set&lt;String&gt; varNames, BindingSet bindings) {<a name="line.451"></a>
+<span class="sourceLineNo">452</span>                <a name="line.452"></a>
+<span class="sourceLineNo">453</span>                String _varID = Integer.toString(varID);<a name="line.453"></a>
+<span class="sourceLineNo">454</span>                Var subj = appendVarId(stmt.getSubjectVar(), _varID, varNames, bindings);<a name="line.454"></a>
+<span class="sourceLineNo">455</span>                Var pred = appendVarId(stmt.getPredicateVar(), _varID, varNames, bindings);<a name="line.455"></a>
+<span class="sourceLineNo">456</span>                <a name="line.456"></a>
+<span class="sourceLineNo">457</span>                Var obj = new Var("o_" + _varID);<a name="line.457"></a>
+<span class="sourceLineNo">458</span>                varNames.add("o_" + _varID);<a name="line.458"></a>
+<span class="sourceLineNo">459</span>                                <a name="line.459"></a>
+<span class="sourceLineNo">460</span>                Value objValue;<a name="line.460"></a>
+<span class="sourceLineNo">461</span>                if (stmt.getObjectVar().hasValue()) {<a name="line.461"></a>
+<span class="sourceLineNo">462</span>                        objValue = stmt.getObjectVar().getValue();<a name="line.462"></a>
+<span class="sourceLineNo">463</span>                } else if (bindings.hasBinding(stmt.getObjectVar().getName())){<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                        objValue = bindings.getBinding(stmt.getObjectVar().getName()).getValue();<a name="line.464"></a>
+<span class="sourceLineNo">465</span>                } else {<a name="line.465"></a>
+<span class="sourceLineNo">466</span>                        // just to make sure that we see an error, will be deleted soon<a name="line.466"></a>
+<span class="sourceLineNo">467</span>                        throw new RuntimeException("Unexpected.");<a name="line.467"></a>
+<span class="sourceLineNo">468</span>                }<a name="line.468"></a>
+<span class="sourceLineNo">469</span>                <a name="line.469"></a>
+<span class="sourceLineNo">470</span>                Compare cmp = new Compare(obj, new ValueConstant(objValue));<a name="line.470"></a>
+<span class="sourceLineNo">471</span>                cmp.setOperator(CompareOp.EQ);<a name="line.471"></a>
+<span class="sourceLineNo">472</span>                Filter filter = new Filter( new StatementPattern(subj, pred, obj), cmp);<a name="line.472"></a>
+<span class="sourceLineNo">473</span>                                <a name="line.473"></a>
+<span class="sourceLineNo">474</span>                return filter;<a name="line.474"></a>
+<span class="sourceLineNo">475</span>        }<a name="line.475"></a>
+<span class="sourceLineNo">476</span>        <a name="line.476"></a>
+<span class="sourceLineNo">477</span>        <a name="line.477"></a>
+<span class="sourceLineNo">478</span>        <a name="line.478"></a>
+<span class="sourceLineNo">479</span>        <a name="line.479"></a>
+<span class="sourceLineNo">480</span>        /**<a name="line.480"></a>
+<span class="sourceLineNo">481</span>         * Clone the specified variable and attach bindings.<a name="line.481"></a>
+<span class="sourceLineNo">482</span>         *  <a name="line.482"></a>
+<span class="sourceLineNo">483</span>         * @param sb<a name="line.483"></a>
+<span class="sourceLineNo">484</span>         * @param var<a name="line.484"></a>
+<span class="sourceLineNo">485</span>         * @param varNames<a name="line.485"></a>
+<span class="sourceLineNo">486</span>         * @param bindings<a name="line.486"></a>
+<span class="sourceLineNo">487</span>         * <a name="line.487"></a>
+<span class="sourceLineNo">488</span>         * @return<a name="line.488"></a>
+<span class="sourceLineNo">489</span><a name="line.489"></a>
+<span class="sourceLineNo">490</span>         */<a name="line.490"></a>
+<span class="sourceLineNo">491</span>        protected static Var appendVar(Var var, Set&lt;String&gt; varNames, BindingSet bindings) {<a name="line.491"></a>
+<span class="sourceLineNo">492</span>                Var res = var.clone();<a name="line.492"></a>
+<span class="sourceLineNo">493</span>                if (!var.hasValue()) {<a name="line.493"></a>
+<span class="sourceLineNo">494</span>                        if (bindings.hasBinding(var.getName()))<a name="line.494"></a>
+<span class="sourceLineNo">495</span>                                res.setValue( bindings.getValue(var.getName()) );<a name="line.495"></a>
+<span class="sourceLineNo">496</span>                        else <a name="line.496"></a>
+<span class="sourceLineNo">497</span>                                varNames.add(var.getName());                    <a name="line.497"></a>
+<span class="sourceLineNo">498</span>                }<a name="line.498"></a>
+<span class="sourceLineNo">499</span>                return res;<a name="line.499"></a>
+<span class="sourceLineNo">500</span>        }<a name="line.500"></a>
+<span class="sourceLineNo">501</span>        <a name="line.501"></a>
+<span class="sourceLineNo">502</span>        /**<a name="line.502"></a>
+<span class="sourceLineNo">503</span>         * Clone the specified variable and attach bindings, moreover change name of variable<a name="line.503"></a>
+<span class="sourceLineNo">504</span>         * by appending "_varId" to it.<a name="line.504"></a>
+<span class="sourceLineNo">505</span>         * <a name="line.505"></a>
+<span class="sourceLineNo">506</span>         * @param sb<a name="line.506"></a>
+<span class="sourceLineNo">507</span>         * @param var<a name="line.507"></a>
+<span class="sourceLineNo">508</span>         * @param varNames<a name="line.508"></a>
+<span class="sourceLineNo">509</span>         * @param bindings<a name="line.509"></a>
+<span class="sourceLineNo">510</span>         * <a name="line.510"></a>
+<span class="sourceLineNo">511</span>         * @return<a name="line.511"></a>
+<span class="sourceLineNo">512</span>         */<a name="line.512"></a>
+<span class="sourceLineNo">513</span>        protected static Var appendVarId(Var var, String varID, Set&lt;String&gt; varNames, BindingSet bindings) {<a name="line.513"></a>
+<span class="sourceLineNo">514</span>                Var res = var.clone();<a name="line.514"></a>
+<span class="sourceLineNo">515</span>                if (!var.hasValue()) {<a name="line.515"></a>
+<span class="sourceLineNo">516</span>                        if (bindings.hasBinding(var.getName())) {<a name="line.516"></a>
+<span class="sourceLineNo">517</span>                                res.setValue( bindings.getValue(var.getName()) );<a name="line.517"></a>
+<span class="sourceLineNo">518</span>                        } else {<a name="line.518"></a>
+<span class="sourceLineNo">519</span>                                String newName = var.getName() + "_" + varID;<a name="line.519"></a>
+<span class="sourceLineNo">520</span>                                varNames.add(newName);<a name="line.520"></a>
+<span class="sourceLineNo">521</span>                                res.setName(newName);<a name="line.521"></a>
+<span class="sourceLineNo">522</span>                        }                       <a name="line.522"></a>
+<span class="sourceLineNo">523</span>                }<a name="line.523"></a>
+<span class="sourceLineNo">524</span>                return res;<a name="line.524"></a>
+<span class="sourceLineNo">525</span>        }<a name="line.525"></a>
+<span class="sourceLineNo">526</span>                <a name="line.526"></a>
+<span class="sourceLineNo">527</span>        <a name="line.527"></a>
+<span class="sourceLineNo">528</span>        <a name="line.528"></a>
+<span class="sourceLineNo">529</span>}<a name="line.529"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

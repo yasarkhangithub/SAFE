@@ -1,0 +1,9 @@
+@prefix fluid: <http://fluidops.org/config#>.
+
+<http://localhost:8890/sparql> fluid:store "SPARQLEndpoint";
+	fluid:SPARQLEndpoint "http://localhost:8890/sparql";
+	fluid:supportsASKQueries "false" .
+
+<http://localhost:8891/sparql> fluid:store "SPARQLEndpoint";
+	fluid:SPARQLEndpoint "http://localhost:8891/sparql";
+	fluid:supportsASKQueries "false" .
