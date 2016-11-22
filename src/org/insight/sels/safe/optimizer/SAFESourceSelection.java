@@ -1,8 +1,6 @@
 
 package org.insight.sels.safe.optimizer;
 
-import info.aduna.iteration.CloseableIteration;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,8 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-
-import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 import org.insight.sels.safe.util.SAFEUtility;
@@ -49,10 +45,12 @@ import com.fluidops.fedx.structures.SubQuery;
 import com.fluidops.fedx.util.QueryStringUtil;
 import com.google.common.collect.Sets;
 
+import info.aduna.iteration.CloseableIteration;
+
 /**
  * SAFE source selection 
  * 
- * @author saleem
+ * @author saleem, yasar
  *
  */
 public class SAFESourceSelection {
@@ -185,9 +183,10 @@ public class SAFESourceSelection {
 			 }
 					
 		}
-		 long endTime = System.currentTimeMillis();
-		  
-			System.out.println("Source Selection Exe time (msec): "+ (endTime-startTime));
+		 
+		
+		long endTime = System.currentTimeMillis();
+		System.out.println("Source Selection Exe time (msec): "+ (endTime-startTime));
 		
 		
 		// if remote checks are necessary, execute them using the concurrency
@@ -238,6 +237,10 @@ public class SAFESourceSelection {
 	
 	
 	}
+		
+		
+		
+		
 	/**
 	 * Bind the finally selected sources to the corresponding statment
 	 * @param stmt statement
@@ -252,6 +255,9 @@ public class SAFESourceSelection {
 			addSource(stmt, new StatementSource(id, StatementSourceType.REMOTE));
 		}
 	}
+	
+	
+	
 	/**
 	 * Bind the selected graphs to the corresponding statment
 	 * @param stmt statement
@@ -267,6 +273,9 @@ public class SAFESourceSelection {
 		}
 	}
 		
+	
+	
+	
 	/**
 	 * Create star join groups from user query
 	 * @param stmts list of triple patterns in query
@@ -294,6 +303,11 @@ public class SAFESourceSelection {
 			}
 		}
 	}
+	
+	
+	
+	
+	
 	/**
 	 * Create path join groups from user query
 	 * @param stmts list of triple patterns in query
@@ -337,6 +351,9 @@ public class SAFESourceSelection {
 	}
 	
 	
+	
+	
+	
 	/**
 	 * Check for path join. But the predicate must have a start join with predicate result
 	 * @param s
@@ -360,6 +377,10 @@ public class SAFESourceSelection {
 //		return value;
 //		
 //	}
+	
+	
+	
+	
 	
 	/**
 	 * Check Star join between predicate of a statement pattern and a predicate set
@@ -395,6 +416,10 @@ public class SAFESourceSelection {
 		return value;
 	}
 
+	
+	
+	
+	
 	/**
 	 * Check Path join between predicate of a statement pattern and a predicate set
 	 * @param stmt statement pattern
@@ -426,6 +451,10 @@ public class SAFESourceSelection {
 		return value;
 	}
 
+	
+	
+	
+	
 		/**
 	 * Retrieve a set of relevant sources for this query.
 	 * @return
@@ -451,6 +480,11 @@ public class SAFESourceSelection {
 			sources.add(source);
 		}
 	}
+	
+	
+	
+	
+	
 	/**
 	 * Add a graph to the given statement in the map (synchronized through map)
 	 * 
