@@ -76,6 +76,9 @@ public class SAFESourceSelection {
 	 */
 	public  Map<StatementPattern, List<StatementSource>> stmtToSources = new ConcurrentHashMap<StatementPattern, List<StatementSource>>();
 	public  Map<StatementPattern, List<String>> stmtToGraphs = new ConcurrentHashMap<StatementPattern, List<String>>();
+	
+	
+	
 	/**
 	 * Sources, predicate Sets
 	 */
