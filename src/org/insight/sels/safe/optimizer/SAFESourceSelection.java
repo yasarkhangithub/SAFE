@@ -138,7 +138,8 @@ public class SAFESourceSelection {
 					String src = e.getEndpoint();
 					Set<String> srcUniqueProperties = Config.uniqueProperties.get(src);
 					 Set<String> upc = Sets.union(srcUniqueProperties,Config.lstC); //--union of src unique properties and common properties of all sources
-					if(upc.contains(p) && (((isStarJoin(stmt, srcUniqueProperties)==true || isPathJoin(stmt, srcUniqueProperties)==true) ||(isStarJoin(stmt,Sets.symmetricDifference(Config.allUniqueProperties,srcUniqueProperties))==false && isPathJoin(stmt,Sets.symmetricDifference(Config.allUniqueProperties,srcUniqueProperties))==false))))
+					if(upc.contains(p) && 
+							(((isStarJoin(stmt, srcUniqueProperties)==true || isPathJoin(stmt, srcUniqueProperties)==true) ||(isStarJoin(stmt,Sets.symmetricDifference(Config.allUniqueProperties,srcUniqueProperties))==false && isPathJoin(stmt,Sets.symmetricDifference(Config.allUniqueProperties,srcUniqueProperties))==false))))
 					{
 						String id = "sparql_" + src.replace("http://", "").replace("/", "_");
 						addSource(stmt, new StatementSource(id, StatementSourceType.REMOTE));	
