@@ -36,30 +36,31 @@ public class QueryEvaluation<repo> {
 		}
 		queryPath = args[0];
 		indexPath = args[1];
-		datasourceConfigPath = args[2];
+//		datasourceConfigPath = args[2];
 		
 		Config.initialize();
 		Config.getConfig().set("enableMonitoring", "true");
 		Config.getConfig().set("monitoring.logQueryPlan", "true");
 		
 //		datasourceConfigPath = "settings/safeDatasourceConfig.ttl";
-		Repository repo = FedXFactory.initializeFederation(datasourceConfigPath);
+//		Repository repo = FedXFactory.initializeFederation(datasourceConfigPath);
 
 		
 		// External Datasets Endpoints
-//		SailRepository repo = FedXFactory.initializeSparqlFederation(Arrays.asList(
-//				"http://datasrv01.deri.ie:8890/sparql", // IMF
-//				"http://datasrv01.deri.ie:8891/sparql", // WB 
-//				"http://datasrv01.deri.ie:8892/sparql", // TI
-//				"http://datasrv01.deri.ie:8893/sparql", // Eurostat
-//				"http://datasrv01.deri.ie:8894/sparql", // CSO 
-//				"http://datasrv01.deri.ie:8895/sparql" // FAO
-//				));
+		SailRepository repo = FedXFactory.initializeSparqlFederation(Arrays.asList(
+				"http://datasrv01.deri.ie:8890/sparql", // IMF
+				"http://datasrv01.deri.ie:8891/sparql", // WB 
+				"http://datasrv01.deri.ie:8892/sparql", // TI
+				"http://datasrv01.deri.ie:8893/sparql", // Eurostat
+				"http://datasrv01.deri.ie:8894/sparql", // CSO 
+				"http://datasrv01.deri.ie:8895/sparql" // FAO
+				));
 		
 		// Internal Datasets Endpoints
 //		SailRepository repo = FedXFactory.initializeSparqlFederation(Arrays.asList(
-//				"http://localhost:8890/sparql",
-//				"http://localhost:8891/sparql"
+//				"http://localhost:3030/dataset1/sparql",
+//				"http://localhost:3030/dataset2/sparql",
+//				"http://localhost:3030/dataset3/sparql"
 //				));
 
 		String queryString = readFileAsString(queryPath);
@@ -68,21 +69,21 @@ public class QueryEvaluation<repo> {
 		TupleQuery query = repo.getConnection().prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 		long startTime = System.currentTimeMillis();
 		
-		String outputFilePath = "safe-genome-output.csv";
-		File csvResultFile = new File(outputFilePath);
-		FileOutputStream fos = new FileOutputStream(csvResultFile);
-		
-		TupleQueryResultHandler writer = new SPARQLResultsCSVWriter(fos);	
-		query.evaluate(writer);
-//		TupleQueryResult res = query.evaluate();
+//		String outputFilePath = "safe-genome-output.csv";
+//		File csvResultFile = new File(outputFilePath);
+//		FileOutputStream fos = new FileOutputStream(csvResultFile);
+//		
+//		TupleQueryResultHandler writer = new SPARQLResultsCSVWriter(fos);	
+//		query.evaluate(writer);
+		TupleQueryResult res = query.evaluate();
 		
 		long count = 0;
 //		System.out.println(QueryPlanLog.getQueryPlan());
-//		while (res.hasNext()) {
-//			res.next();
-//			// System.out.println(": "+ res.next());
-//			count++;
-//		}
+		while (res.hasNext()) {
+			res.next();
+			// System.out.println(": "+ res.next());
+			count++;
+		}
 
 		long runTime = System.currentTimeMillis() - startTime;
 		System.out.println("Query exection time (msec):" + runTime);
