@@ -64,7 +64,7 @@ public class QueryEvaluation<repo> {
 //				));
 
 		String queryString = readFileAsString(queryPath);
-		System.out.println(queryString);
+//		System.out.println(queryString);
 
 		TupleQuery query = repo.getConnection().prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 		long startTime = System.currentTimeMillis();

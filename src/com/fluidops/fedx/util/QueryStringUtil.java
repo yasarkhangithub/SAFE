@@ -547,6 +547,30 @@ public class QueryStringUtil {
 		return res.toString();		
 	}
 	
+	
+	
+	/**
+	 * Construct a boolean ASK query for the provided statement.
+	 * 
+	 * @param stmt
+	 * @param bindings
+	 * @return
+	 */
+	public static String askQueryString( StatementPattern stmt, BindingSet bindings, String graph ) {
+		
+		Set<String> varNames = new HashSet<String>();
+		String s = constructStatement(stmt, varNames, bindings);
+		
+		StringBuilder res = new StringBuilder();
+		
+		res.append("ASK { ");
+		res.append("GRAPH <" + graph + "> { ");
+		res.append(s).append(" } }");
+		
+		return res.toString();		
+	}
+	
+	
 	/**
 	 * Construct a SELECT query for the provided statement with LIMIT 1. Such query
 	 * can be used for source selection instead of ASK queries.
@@ -567,6 +591,22 @@ public class QueryStringUtil {
 		
 		return res.toString();		
 	}
+	
+	
+
+	public static String selectQueryStringForNG( StatementPattern stmt, BindingSet bindings ) {
+		
+		Set<String> varNames = new HashSet<String>();
+		String s = constructStatement(stmt, varNames, bindings);
+		
+		StringBuilder res = new StringBuilder();
+		
+		res.append("SELECT DISTINCT ?g WHERE { GRAPH ?g { ");
+		res.append(s).append(" } }");
+		
+		return res.toString();		
+	}
+	
 	
 	/**
 	 * Construct a SELECT query for the provided {@link ExclusiveGroup} with LIMIT 1. Such query

@@ -13,12 +13,18 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.log4j.Logger;
 import org.insight.sels.safe.util.SAFEUtility;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.algebra.StatementPattern;
 import org.openrdf.query.impl.EmptyBindingSet;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.sparql.SPARQLRepository;
 import org.openrdf.rio.RDFParseException;
 
 import com.fluidops.fedx.Config;
@@ -157,15 +163,22 @@ public class SAFESourceSelection {
 										&& isPathJoin(stmt, Sets.symmetricDifference(Config.allUniqueProperties,
 												srcUniqueProperties)) == false)))) {
 						String id = "sparql_" + src.replace("http://", "").replace("/", "_");
-						addSource(stmt, new StatementSource(id, StatementSourceType.REMOTE));
+//						addSource(stmt, new StatementSource(id, StatementSourceType.REMOTE));
 						
 						// --- graph level filtering
 						List<String> srcUniqueCubes = Config.uniqueCubes.get(src);
+//						System.out.println(" --------------- Source: " + src + " ------------------");
 						Boolean isBelongToUniqueSrcGrph = false;
 						for (int i = 0; i < srcUniqueCubes.size(); i++) {
 							String uniqueProperty = Config.uniqueProperty.get(srcUniqueCubes.get(i));
-							List<String> lstSJGrp = starJoinGrps.get(s);
-							if (lstSJGrp.contains(uniqueProperty)) {
+							List<String> cubeUniqueProperties = Config.cubeUniquePropertiesMap.get(srcUniqueCubes.get(i));
+							List<String> lstSJGrp = starJoinGrps.get(s);							
+							
+							
+//							if (lstSJGrp.contains(uniqueProperty)) {
+							if(cubeUniqueProperties.retainAll(lstSJGrp)) {
+//							if(cubeUniqueProperties.contains(p)) {
+								addSource(stmt, new StatementSource(id, StatementSourceType.REMOTE));
 								String graph = Config.graph.get(srcUniqueCubes.get(i).toString());
 								addGraph(stmt, graph);
 								isBelongToUniqueSrcGrph = true;
@@ -175,7 +188,13 @@ public class SAFESourceSelection {
 						
 						if (isBelongToUniqueSrcGrph == false) // then select all graphs for the current source
 						{
-							bindGraphsToStatement(stmt, Config.graphs.get(src));
+//							bindGraphsToStatement(stmt, Config.graphs.get(src));
+							
+							ArrayList<String> relevantgraphs = (ArrayList<String>) getNonUniqueRelevantGraphs(stmt, src);
+							if(relevantgraphs.size() > 0) {
+								bindGraphsToStatement(stmt, relevantgraphs);
+								addSource(stmt, new StatementSource(id, StatementSourceType.REMOTE));
+							}
 							// System.out.println(stmt.getPredicateVar()+ "
 							// graphs: "+Config.graphs.get(src));
 						}
@@ -219,11 +238,11 @@ public class SAFESourceSelection {
 			triplePatternWiseSources = triplePatternWiseSources + sources.size();
 
 			// Printing Sources and Graphs selected for each triple pattern
-			// System.out.println("------------\n"+stmt);
-			// System.out.println(sources);
-			// System.out.println("------------ Graphs-----");
-			// List<String> graphs = stmtToGraphs.get(stmt);
-			// System.out.println(graphs);
+//			 System.out.println("------------\n"+stmt);
+//			 System.out.println(sources);
+//			 System.out.println("------------ Graphs-----");
+//			 List<String> graphs = stmtToGraphs.get(stmt);
+//			 System.out.println(graphs);
 
 			// if more than one source -> StatementSourcePattern
 			// exactly one source -> OwnedStatementSourcePattern
@@ -250,6 +269,46 @@ public class SAFESourceSelection {
 		}
 		System.out.println("Total Triple Pattern-wise selected sources: " + triplePatternWiseSources);
 
+	}
+	
+	
+	public List<String> getNonUniqueRelevantGraphs(StatementPattern stmt, String src) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
+		
+		List<String> relevantGraphs = new ArrayList<String>();
+		
+		List<String> allGraphs = Config.graphs.get(src);
+		
+		Repository repo = new SPARQLRepository(src);
+		repo.initialize();
+		
+		String query = QueryStringUtil.selectQueryStringForNG(stmt, EmptyBindingSet.getInstance());
+//		System.out.println(query);
+		TupleQuery selectQuery = repo.getConnection().prepareTupleQuery(QueryLanguage.SPARQL, query);
+		TupleQueryResult res = selectQuery.evaluate();
+		while(res.hasNext()) {
+			BindingSet bSet = res.next();
+			String graph = bSet.getBinding("g").getValue().toString();
+//			System.out.println(graph);
+			relevantGraphs.add(graph);
+		}
+		
+//		for (String graph : allGraphs) {
+//			
+//			String query = QueryStringUtil.askQueryString(stmt, EmptyBindingSet.getInstance(), graph);
+//			
+//			
+//			System.out.println(query);
+//			
+//			BooleanQuery askQuery = repo.getConnection().prepareBooleanQuery(QueryLanguage.SPARQL, query);
+//			if(askQuery.evaluate()) {
+//				relevantGraphs.add(graph);
+//			}
+//		}
+//		System.out.println("Source: " + src);
+//		System.out.println("All Graphs: " + allGraphs.size() + " === Selected Graphs: " + relevantGraphs.size());
+		
+		return relevantGraphs;
+		
 	}
 
 	/**

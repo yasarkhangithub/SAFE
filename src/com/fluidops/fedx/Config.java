@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -106,6 +107,12 @@ public class Config {
 																							// property
 																							// hash
 																							// map
+	
+	
+	
+	public static HashMap<String, List<String>> cubeUniquePropertiesMap = new HashMap<String, List<String>>(); // cube to its unique properties list
+	
+	
 	public static HashMap<String, String> graph = new HashMap<String, String>(); // cube
 																					// ->
 																					// its
@@ -233,7 +240,8 @@ public class Config {
 		TupleQuery tupleQuery = null;
 		tupleQuery = Config.con.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 		TupleQueryResult result = tupleQuery.evaluate();
-
+		
+		
 		while (result.hasNext()) {
 			BindingSet bset = result.next();
 			String p = bset.getValue("property").stringValue();
@@ -245,7 +253,16 @@ public class Config {
 			// predPrts = p.split("#");
 			// p = predPrts[predPrts.length-1];
 			// }
-			uniqueProperty.put(bset.getValue("uniquecube").stringValue(), p);
+			String uniqueCube = bset.getValue("uniquecube").stringValue();
+			uniqueProperty.put(uniqueCube, p);
+			
+			if(cubeUniquePropertiesMap.containsKey(uniqueCube)) {
+				cubeUniquePropertiesMap.get(uniqueCube).add(p);
+			} else {
+				List<String> uniquePropList = new ArrayList<String>();
+				uniquePropList.add(p);
+				cubeUniquePropertiesMap.put(uniqueCube, uniquePropList);
+			}
 		}
 		// System.out.println(uniqueProperty);
 		queryString = " prefix safe: <http://safe.sels.insight.org/schema/> " + "Select ?cube ?graph" + " WHERE " + " { "
