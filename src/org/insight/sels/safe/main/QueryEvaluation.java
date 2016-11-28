@@ -31,7 +31,8 @@ public class QueryEvaluation<repo> {
 	public static void main(String[] args) throws Exception {
 
 		if(args.length == 0) {
-			System.out.println("[query path] [index path] [datasources config path]");
+//			System.out.println("[query path] [index path] [datasources config path]");
+			System.out.println("[query path] [index path]");
 			System.exit(0);
 		}
 		queryPath = args[0];

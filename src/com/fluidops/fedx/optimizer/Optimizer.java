@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.insight.sels.safe.optimizer.SAFESourceSelection;
+import org.insight.sels.safe.optimizer.SAFESourceSelection_old;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.MalformedQueryException;
