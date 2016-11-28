@@ -39,7 +39,7 @@ Each dataset was loaded into a different SPARQL endpoint on separate physical ma
 
 A total of 15 queries are designed to evaluate and compare the query federation performance of SAFE against FedX, HiBISCuS and SPLENDID based on the metrics defined. We define ten queries for the federation of EXTERNAL datasets and five for the federation of INTERNAL datasets. Only ten queries (EXTERNAL dataset queries) are made available due to owner restrictions.
 
-Queries can be downloaded from [SAFE Queries](https://goo.gl/WCCnx3). 
+Queries used in evaluation experiments of SAFE can be downloaded from [SAFE Queries](https://goo.gl/WCCnx3). 
 
 ###Metrics
 
