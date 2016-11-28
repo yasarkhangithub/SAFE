@@ -19,7 +19,7 @@ External datasets used in evaluation experiments of SAFE can be downloaded from 
 
 ###Settings
 
-Each dataset was loaded into a different SPARQL endpoint on separate physical machines. All experiments are carried out on a local network, so that network cost remains negligible. The machines used for experiments have a 2.60 GHz Core i7 processor, 8 GB of RAM and 500 GB hard disk running a 64-bit Windows 7 OS. Each dataset is hosted as a Virtuoso Open Source SPARQL endpoint hosted physically on separate machines. The details of the parameters used to configure Virtuoso are listed in Table 1 below.
+Each dataset was loaded into a different SPARQL endpoint on separate physical machines. All experiments are carried out on a local network, so that network cost remains negligible. The machines used for experiments have a 2.60 GHz Core i7 processor, 8 GB of RAM and 500 GB hard disk running a 64-bit Windows 7 OS. Each dataset is hosted as a Virtuoso Open Source SPARQL endpoint hosted physically on separate machines. The details of the parameters used to configure Virtuoso are listed in Table 1 below. Virtuoso version 7.2.4.2 has been used in experiments.
 
 **Table 1:** SPARQL Endpoints Configuration
 
