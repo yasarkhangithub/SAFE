@@ -43,7 +43,7 @@ Queries can be downloaded from [SAFE Queries](https://goo.gl/WCCnx3).
 
 ###Metrics
 
-For each query type we measured (1) the number of sources selected; (2) the average source selection time; (3) the average query execution time; and (4) the number of \texttt{ASK} requests issued to sources.
+For each query type we measured (1) the number of sources selected; (2) the average source selection time; (3) the average query execution time; and (4) the number of ASK requests issued to sources.
 
 ## Team
 
