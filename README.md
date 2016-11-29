@@ -57,4 +57,6 @@ For each query type we measured (1) the number of sources selected; (2) the aver
 
 [Qaiser Mehmood](https://www.insight-centre.org/users/qaiser-mehmood)
 
+[Dietrich Rebholz-Schuhmann](https://www.insight-centre.org/users/dietrich-rebholz-schuhmann)
+
 [Ratnesh Sahay](https://www.insight-centre.org/users/ratnesh-sahay)
