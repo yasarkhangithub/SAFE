@@ -1,6 +1,6 @@
-# SAFE - Policy aware SPARQL Query Federation Engine
+# SAFE: SPARQL Federation over RDF DataCubes with Access Control
 
-SAFE, a SPARQL query federation engine that enables decentralised, policy-aware access to clinical information represented as RDF data cubes.
+SAFE, a SPARQL query federation engine that enables decentralised, access to clinical information represented as RDF data cubes with controlled access.
 
 ##Experimental Setup
 The experimental setup (i.e. code, datasets, setting, queries) for evaluation of SAFE is described here.
