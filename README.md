@@ -1,4 +1,4 @@
-# SAFE: SPARQL Federation over RDF DataCubes with Access Control
+# SAFE: SPARQL Federation over RDF Data Cubes with Access Control
 
 SAFE, a SPARQL query federation engine that enables decentralised, access to clinical information represented as RDF data cubes with controlled access.
 
