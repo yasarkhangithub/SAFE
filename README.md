@@ -2,13 +2,13 @@
 
 SAFE, a SPARQL query federation engine that enables decentralised, access to clinical information represented as RDF data cubes with controlled access.
 
-##Experimental Setup
+## Experimental Setup
 The experimental setup (i.e. code, datasets, setting, queries) for evaluation of SAFE is described here.
 
-###Code
+### Code
 The SAFE source code can be checkedout from [SAFE GitHub Page](https://github.com/yasarkhangithub/SAFE/). 
 
-###Datasets
+### Datasets
 We use two groups of datasets exploring two different use cases, i.e. INTERNAL and EXTERNAL.
 
 The first group of datasets **(INTERNAL)** are collected from the three clinical partners involved in our primary use case. These datasets contain aggregated clinical data represented as RDF data cubes and are privately owned/restricted.
@@ -17,7 +17,7 @@ The second group of datasets **(EXTERNAL)** are collected from legacy Linked Dat
 
 External datasets used in evaluation experiments of SAFE can be downloaded from [SAFE External Datasets](https://goo.gl/bxruKd).
 
-###Settings
+### Settings
 
 Each dataset was loaded into a different SPARQL endpoint on separate physical machines. All experiments are carried out on a local network, so that network cost remains negligible. The machines used for experiments have a 2.60 GHz Core i7 processor, 8 GB of RAM and 500 GB hard disk running a 64-bit Windows 7 OS. Each dataset is hosted as a Virtuoso Open Source SPARQL endpoint hosted physically on separate machines. The details of the parameters used to configure Virtuoso are listed in Table 1 below. Virtuoso version 7.2.4.2 has been used in experiments.
 
@@ -35,13 +35,13 @@ Each dataset was loaded into a different SPARQL endpoint on separate physical ma
 - *MDF = MaxDirtyBuffers*
 - *MQM = MaxQueryMem*
 
-###Queries
+### Queries
 
 A total of 15 queries are designed to evaluate and compare the query federation performance of SAFE against FedX, HiBISCuS and SPLENDID based on the metrics defined. We define ten queries for the federation of EXTERNAL datasets and five for the federation of INTERNAL datasets. Only ten queries (EXTERNAL dataset queries) are made available due to owner restrictions.
 
 Queries used in evaluation experiments of SAFE can be downloaded from [SAFE Queries](https://goo.gl/WCCnx3). 
 
-###Metrics
+### Metrics
 
 For each query type we measured (1) the number of sources selected; (2) the average source selection time; (3) the average query execution time; and (4) the number of ASK requests issued to sources.
 
