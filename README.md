@@ -15,7 +15,7 @@ The first group of datasets **(INTERNAL)** are collected from the three clinical
 
 The second group of datasets **(EXTERNAL)** are collected from legacy Linked Data containing sociopolitical and economical statistics (in the form of RDF data cubes) from the **World Bank**, **IMF (International Monetary Fund)**, **Eurostat**, **FAO (Food and Agriculture Organization of the United Nations)** and **TI (Transparency International)**.
 
-External datasets used in evaluation experiments of SAFE can be downloaded from [SAFE External Datasets](https://goo.gl/bxruKd).
+External datasets used in evaluation experiments of SAFE can be downloaded from [SAFE External Datasets](https://goo.gl/6s4juv).
 
 ### Settings
 
