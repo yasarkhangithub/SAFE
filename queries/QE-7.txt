@@ -1,0 +1,27 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>
+PREFIX sdmx-dimension: <http://purl.org/linked-data/sdmx/2009/dimension#>
+PREFIX esproperty: <http://eurostat.linked-statistics.org/property#>
+PREFIX wbproperty: <http://worldbank.270a.info/property/>
+
+SELECT DISTINCT ?wbcountry ?year ?geo ?homicide ?wbpopulation
+WHERE {
+ 
+    ?wb_obs wbproperty:indicator <http://worldbank.270a.info/classification/indicator/SP.POP.TOTL> .
+    ?wb_obs sdmx-dimension:refPeriod <http://reference.data.gov.uk/id/year/2010>, ?year .
+    ?wb_obs sdmx-dimension:refArea ?wbcountry .
+    ?wb_obs sdmx-measure:obsValue ?wbpopulation .
+	
+	?wbcountry owl:sameAs ?geo .
+ 
+	?crim_gen qb:dataSet <http://eurostat.linked-statistics.org/data/crim_gen> .
+    ?crim_gen sdmx-dimension:freq <http://purl.org/linked-data/sdmx/2009/code#freq-A> .
+    ?crim_gen esproperty:crim <http://eurostat.linked-statistics.org/dic/crim#HCIDE> .
+    ?crim_gen esproperty:unit <http://eurostat.linked-statistics.org/dic/unit#NR> .
+    ?crim_gen esproperty:geo ?geo .
+    ?crim_gen sdmx-measure:obsValue ?homicide .
+ 
+ FILTER(!(?geo IN (<http://eurostat.linked-statistics.org/dic/geo#RU>, <http://eurostat.linked-statistics.org/dic/geo#ZA>)))
+ 
+} LIMIT 5

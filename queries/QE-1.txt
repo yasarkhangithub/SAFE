@@ -1,0 +1,26 @@
+PREFIX sdmx-dimension: <http://purl.org/linked-data/sdmx/2009/dimension#>
+PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX wb-property: <http://worldbank.270a.info/property/>
+PREFIX es-property: <http://eurostat.linked-statistics.org/property#>
+PREFIX es-data: <http://eurostat.linked-statistics.org/data/>
+PREFIX es-dic-unit: <http://eurostat.linked-statistics.org/dic/>
+
+SELECT ?year ?gdp WHERE  { {
+
+?obs1 qb:dataSet es-data:tec00001.
+?obs1 es-property:unit   es-dic-unit:MIO_EUR.
+?obs1  es-property:geo  <http://eurostat.linked-statistics.org/dic/geo#DE>.
+?obs1  sdmx-dimension:timePeriod  ?year.
+?obs1  sdmx-measure:obsValue  ?gdp.
+
+} UNION {
+
+?obs2 wb-property:indicator  <http://worldbank.270a.info/classification/indicator/NY.GDP.MKTP.CN>.
+?obs2 sdmx-dimension:refArea <http://worldbank.270a.info/classification/country/DE>.
+?obs2 sdmx-measure:obsValue  ?gdpMio.
+?obs2 sdmx-dimension:refPeriod  ?year.
+BIND((?gdpMio/1000000) AS ?gdp)
+
+}
+}

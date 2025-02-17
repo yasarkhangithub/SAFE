@@ -1,0 +1,30 @@
+PREFIX wbcountry: <http://worldbank.270a.info/classification/country/>
+PREFIX wbindicator: <http://worldbank.270a.info/classification/indicator/>
+PREFIX wbp: <http://worldbank.270a.info/property/>
+PREFIX sd: <http://purl.org/linked-data/sdmx/2009/dimension#>
+PREFIX sm: <http://purl.org/linked-data/sdmx/2009/measure#>
+
+SELECT DISTINCT ?year ?germany ?china
+WHERE {
+  
+     ?obs wbp:indicator wbindicator:NY.GDP.MKTP.CD .
+     ?obs sd:refArea wbcountry:DE .
+     ?obs sm:obsValue ?degdp .
+     ?obs sd:refPeriod ?year .
+     ?obs2 wbp:indicator wbindicator:NY.GDP.MKTP.CD .
+     ?obs2 sd:refArea wbcountry:CN .
+     ?obs2 sm:obsValue ?cngdp .
+     ?obs2 sd:refPeriod ?year .
+ 
+     ?obs3 wbp:indicator wbindicator:SP.POP.TOTL .
+     ?obs3 sd:refArea wbcountry:DE .
+     ?obs3 sm:obsValue ?depop .
+     ?obs3 sd:refPeriod ?year .
+     ?obs4 wbp:indicator wbindicator:SP.POP.TOTL .
+     ?obs4 sd:refArea wbcountry:CN .
+     ?obs4 sm:obsValue ?cnpop .
+     ?obs4 sd:refPeriod ?year .
+  
+  BIND((?degdp / ?depop) AS ?germany )
+  BIND((?cngdp / ?cnpop) AS ?china)
+}

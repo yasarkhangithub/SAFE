@@ -1,0 +1,22 @@
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX sdmx-dimension: <http://purl.org/linked-data/sdmx/2009/dimension#>
+PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>
+PREFIX wbp: <http://worldbank.270a.info/property/>
+PREFIX ti_property: <http://transparency.270a.info/property/>
+
+SELECT DISTINCT ?wbCountry ?indicatorValue ?CPIScore
+WHERE {
+
+  ?wbObs wbp:indicator <http://worldbank.270a.info/classification/indicator/NY.GDP.MKTP.CN> .
+	?wbObs sdmx-dimension:refPeriod <http://reference.data.gov.uk/id/year/2009> .
+	?wbObs sdmx-dimension:refArea ?wbCountry .
+	?wbObs sdmx-measure:obsValue ?indicatorValue.
+ 
+	?wbCountry skos:exactMatch ?countryURI .	
+ 
+	?ti_obs ti_property:indicator <http://transparency.270a.info/classification/indicator/corruption-perceptions-index> .
+	?ti_obs sdmx-dimension:refPeriod <http://reference.data.gov.uk/id/year/2009> .
+	?ti_obs sdmx-dimension:refArea ?countryURI .
+  ?ti_obs ti_property:score ?CPIScore .
+
+} LIMIT 10

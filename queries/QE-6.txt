@@ -1,0 +1,24 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>
+PREFIX sdmx-dimension: <http://purl.org/linked-data/sdmx/2009/dimension#>
+PREFIX wb-property: <http://worldbank.270a.info/property/>
+PREFIX es-property: <http://eurostat.linked-statistics.org/property#>
+
+SELECT DISTINCT ?wbcountry ?estatcountry ?date ?worldbank ?eurostat
+WHERE {
+
+	?wb_obs qb:dataSet <http://worldbank.270a.info/dataset/world-development-indicators> .
+	?wb_obs wb-property:indicator <http://worldbank.270a.info/classification/indicator/NY.GDP.PCAP.CD> .
+	?wb_obs sdmx-dimension:refPeriod <http://reference.data.gov.uk/id/year/1999> .
+	?wb_obs sdmx-dimension:refArea ?wbcountry .
+	?wb_obs sdmx-measure:obsValue ?worldbank .
+	
+	?wbcountry owl:sameAs ?estatcountry .
+    
+    ?es_obs qb:dataSet <http://eurostat.linked-statistics.org/data/demo_pjanbroad> .
+    ?es_obs sdmx-dimension:timePeriod ?date .
+    ?es_obs es-property:geo ?estatcountry .
+    ?es_obs sdmx-measure:obsValue ?eurostat .
+
+}

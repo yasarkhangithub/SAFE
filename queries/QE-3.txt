@@ -1,0 +1,23 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX ti-property: <http://transparency.270a.info/property/>
+PREFIX sdmx-dimension: <http://purl.org/linked-data/sdmx/2009/dimension#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT ?rank ?year ?obsValue WHERE { 
+
+?obs a qb:Observation .
+?obs qb:dataSet <http://imf.270a.info/dataset/PGI> .
+?obs <http://imf.270a.info/dimension/1.0/PGI/REF_AREA> ?refArea .
+?obs <http://imf.270a.info/dimension/1.0/PGI/PGI_CONCEPT> <http://imf.270a.info/code/1.0/CL_PGI_CONCEPT/LUR> .
+?obs <http://imf.270a.info/dimension/1.0/PGI/TIME_PERIOD> <http://reference.data.gov.uk/id/year/2011> .
+?obs <http://imf.270a.info/measure/1.0/PGI/OBS_VALUE> ?obsValue .
+
+?refArea skos:exactMatch ?transCountry .
+
+?obs2 ti-property:score ?score .
+?obs2 sdmx-dimension:refArea ?transCountry .
+?obs2 ti-property:rank ?rank .
+
+}
+ORDER BY ?rank
+LIMIT 10

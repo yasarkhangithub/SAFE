@@ -1,0 +1,20 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX propertyE: <http://eurostat.linked-statistics.org/property#>
+PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>
+PREFIX es-data: <http://eurostat.linked-statistics.org/data/>
+
+SELECT DISTINCT ?countryE ?countryFAO ?valueE ?valueECB
+WHERE {
+
+	?obsE qb:dataSet es-data:tec00035.
+	?obsE propertyE:geo ?countryE.
+	?obsE sdmx-measure:obsValue ?valueE.
+ 
+  ?countryFAO skos:exactMatch ?countryE.
+	
+	?obsECB qb:dataSet <http://fao.270a.info/dataset/GLOBAL_PRODUCTION>.
+	?obsECB <http://fao.270a.info/dimension/0.1/GENERAL_CONCEPT_SCHEME/UN_COUNTRY> ?countryFAO.
+	?obsECB <http://fao.270a.info/measure/0.1/GENERAL_CONCEPT_SCHEME/OBS_VALUE> ?valueECB.
+	
+}

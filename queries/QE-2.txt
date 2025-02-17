@@ -1,0 +1,22 @@
+PREFIX sdmx-dimension: <http://purl.org/linked-data/sdmx/2009/dimension#>
+PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>
+PREFIX ti-property: <http://transparency.270a.info/property/>
+PREFIX wb-property: <http://worldbank.270a.info/property/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT DISTINCT ?wb_country ?year ?rank where {
+
+?obs1 sdmx-dimension:refArea ?ti_country .
+?obs1 sdmx-dimension:refPeriod <http://reference.data.gov.uk/id/year/2009> .
+?obs1 ti-property:rank ?rank .
+
+FILTER (?ti_country IN ( <http://transparency.270a.info/classification/country/GB> ) )
+
+?obs2 wb-property:indicator <http://worldbank.270a.info/classification/indicator/NY.GDP.PCAP.CD> .
+?obs2 sdmx-dimension:refPeriod <http://reference.data.gov.uk/id/year/2009> .
+?obs2 sdmx-dimension:refArea ?wb_country .
+?obs2 sdmx-measure:obsValue ?gdp .
+
+?ti_country skos:exactMatch ?wb_country .
+
+} 

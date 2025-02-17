@@ -1,0 +1,30 @@
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX sdmx-dimension: <http://purl.org/linked-data/sdmx/2009/dimension#>
+PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX year: <http://reference.data.gov.uk/id/year/>
+PREFIX property: <http://worldbank.270a.info/property/>
+PREFIX indicator: <http://worldbank.270a.info/classification/indicator/>
+PREFIX country: <http://worldbank.270a.info/classification/country/>
+PREFIX imf-property: <http://imf.270a.info/property/>
+
+SELECT DISTINCT ?countryURI ?country ?refPeriod ?imf_obsValue ?wb_obsValue
+WHERE {
+ 
+  ?imf_obs qb:dataSet <http://imf.270a.info/dataset/PGI> .
+  ?imf_obs <http://imf.270a.info/dimension/1.0/PGI/REF_AREA> <http://imf.270a.info/code/1.0/CL_AREA/FR> .
+  ?imf_obs <http://imf.270a.info/dimension/1.0/PGI/REF_AREA> ?country .
+  ?imf_obs <http://imf.270a.info/dimension/1.0/PGI/PGI_CONCEPT> <http://imf.270a.info/code/1.0/CL_PGI_CONCEPT/LUR> .
+  ?imf_obs <http://imf.270a.info/measure/1.0/PGI/OBS_VALUE> ?imf_obsValue .
+  
+  ?country skos:exactMatch ?countryURI .
+  
+  ?wb_obs property:indicator indicator:SL.UEM.TOTL.ZS .
+  ?wb_obs sdmx-dimension:refArea ?countryURI .
+  ?wb_obs sdmx-dimension:refPeriod <http://reference.data.gov.uk/id/year/2007> .
+  ?wb_obs sdmx-dimension:refPeriod ?refPeriodURI .
+  ?wb_obs sdmx-measure:obsValue ?wb_obsValue .
+  
+  BIND(SUBSTR(STR(?refPeriodURI), 38, 4) AS ?refPeriod)       
+}
